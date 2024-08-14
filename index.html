@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREEN-API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+        }
+        .form-section {
+            flex: 1;
+            margin-right: 20px;
+        }
+        .response-section {
+            flex: 1;
+            max-width: 400px;
+            height: 1000px;
+        }
+        #response{
+            height: 800px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        textarea {
+            height: 150px;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-section">
+            <h1>Тестовая задача</h1>
+            <div class="form-group">
+                <label for="idInstance">idInstance:</label>
+                <input type="text" id="idInstance">
+            </div>
+            <div class="form-group">
+                <label for="apiTokenInstance">ApiTokenInstance:</label>
+                <input type="text" id="apiTokenInstance">
+            </div>
+            <button onclick="getSettings()">getSettings</button>
+            <button onclick="getStateInstance()">getStateInstance</button>
+
+            <div class="form-group">
+                <h2>SendMessage</h2>
+                <label for="messagePhoneNumber">Нормер телефона(номер +77755227623 нужно записать как 77755227623):</label>
+                <input type="text" id="messagePhoneNumber" placeholder="Введите номер телефона">
+                <label for="messageText">Сообщение:</label>
+                <input type="text" id="messageText" placeholder="Введите сообщение">
+                <button onclick="sendMessage()">Отправить сообщение</button>
+            </div>
+
+            <div class="form-group">
+                <h2>SendFileByURL</h2>
+                <label for="filePhoneNumber">Нормер телефона(номер +77755227623 нужно записать как 77755227623):</label>
+                <input type="text" id="filePhoneNumber" placeholder="Введите номер телефона">
+                <label for="fileUrl">Ссылка на файл:</label>
+                <input type="text" id="fileUrl" placeholder="Впишите ссылку на файл">
+                <button onclick="sendFileByUrl()">Отправить файл</button>
+            </div>
+        </div>
+        <div class="response-section">
+            <div class="form-group">
+                <label for="response">Ответ:</label>
+                <textarea id="response" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = 'https://api.green-api.com'; // Base URL for API requests
+
+        async function makeRequest(endpoint, method, body) {
+            const idInstance = document.getElementById('idInstance').value;
+            const apiTokenInstance = document.getElementById('apiTokenInstance').value;
+            const url = `${apiUrl}/waInstance${idInstance}/${endpoint}/${apiTokenInstance}`;
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: method === 'POST' ? JSON.stringify(body) : null
+            });
+            return response.json();
+        }
+
+        function formatChatId(phoneNumber) {
+            return `${phoneNumber.replace(/\D/g, '')}@c.us`;
+        }
+
+        async function getSettings() {
+            const data = await makeRequest('getSettings', 'GET');
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function getStateInstance() {
+            const data = await makeRequest('getStateInstance', 'GET');
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function sendMessage() {
+            const phoneNumber = document.getElementById('messagePhoneNumber').value;
+            const message = document.getElementById('messageText').value;
+            const chatId = formatChatId(phoneNumber);
+            const body = {
+                chatId: chatId,
+                message: message
+            };
+            const data = await makeRequest('sendMessage', 'POST', body);
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function sendFileByUrl() {
+            const phoneNumber = document.getElementById('filePhoneNumber').value;
+            const fileUrl = document.getElementById('fileUrl').value;
+            const chatId = formatChatId(phoneNumber);
+            const body = {
+                chatId: chatId,
+                fileUrl: fileUrl
+            };
+            const data = await makeRequest('sendFileByUrl', 'POST', body);
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+        }
+    </script>
+</body>
+</html>
