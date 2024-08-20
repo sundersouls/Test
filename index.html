@@ -72,8 +72,8 @@
                 <input type="text" id="messagePhoneNumber" placeholder="Введите номер телефона">
                 <label for="messageText">Сообщение:</label>
                 <input type="text" id="messageText" placeholder="Введите сообщение">
-                <button onclick="sendMessage()">Отправить сообщение</button>
             </div>
+                <button onclick="sendMessage()">Отправить сообщение</button>
 
             <div class="form-group">
                 <h2>SendFileByURL</h2>
@@ -81,8 +81,10 @@
                 <input type="text" id="filePhoneNumber" placeholder="Введите номер телефона">
                 <label for="fileUrl">Ссылка на файл:</label>
                 <input type="text" id="fileUrl" placeholder="Впишите ссылку на файл">
-                <button onclick="sendFileByUrl()">Отправить файл</button>
+                <label for="fileName">Наименование файла:(с расширением)</label>
+                <input type="text" id="fileName" placeholder="Введите название файла">
             </div>
+                <button onclick="sendFileByUrl()">Отправить файл</button>
         </div>
         <div class="response-section">
             <div class="form-group">
@@ -137,10 +139,12 @@
         async function sendFileByUrl() {
             const phoneNumber = document.getElementById('filePhoneNumber').value;
             const fileUrl = document.getElementById('fileUrl').value;
+            const fileName = document.getElementById('fileName').value;
             const chatId = formatChatId(phoneNumber);
             const body = {
                 chatId: chatId,
-                fileUrl: fileUrl
+                urlFile: fileUrl,
+                fileName:fileName
             };
             const data = await makeRequest('sendFileByUrl', 'POST', body);
             document.getElementById('response').textContent = JSON.stringify(data, null, 2);
